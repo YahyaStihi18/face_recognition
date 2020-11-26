@@ -2,43 +2,39 @@ import face_recognition
 import cv2
 import numpy as np
 
-# This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
-# other example, but it includes some basic performance tweaks to make things run a lot faster:
-#   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
-#   2. Only detect faces in every other frame of video.
 
-# PLEASE NOTE: This example requires OpenCV (the `cv2` library) to be installed only to read from your webcam.
-# OpenCV is *not* required to use the face_recognition library. It's only required if you want to run this
-# specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
+last_face = "no_face"
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("./img/known/obama.jpeg")
-obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
-
-# Load a second sample picture and learn how to recognize it.
-image_of_steve = face_recognition.load_image_file('./img/known/Steve Jobs.jpg')
-steve_face_encoding = face_recognition.face_encodings(image_of_steve)[0]
-
 image_of_yahya = face_recognition.load_image_file('./img/known/yahya stihi.jpg')
 yahya_face_encoding = face_recognition.face_encodings(image_of_yahya)[0]
 
+'''
+# Load a second sample picture and learn how to recognize it.
+obama_image = face_recognition.load_image_file("./img/known/obama.jpeg")
+obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
+
+image_of_steve = face_recognition.load_image_file('./img/known/Steve Jobs.jpg')
+steve_face_encoding = face_recognition.face_encodings(image_of_steve)[0]
+'''
 image_of_ahmed = face_recognition.load_image_file('./img/known/ahmed bouchfirat.jpg')
 ahmed_face_encoding = face_recognition.face_encodings(image_of_ahmed)[0]
 
 # Create arrays of known face encodings and their names
+
 known_face_encodings = [
-    obama_face_encoding,
-    steve_face_encoding,
+    #obama_face_encoding,
+    #steve_face_encoding,
     yahya_face_encoding,
     ahmed_face_encoding,
 
 ]
 known_face_names = [
-    "Barack Obama",
-    "Steve Jobs",
+    #"Barack Obama",
+    #"Steve Jobs",
     "yahya stihi",
     "ahmed bouchfirat"
 ]
@@ -81,6 +77,11 @@ while True:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
+                if last_face != name :
+                    print(f'new face request sent for: { name}')
+                    last_face = name
+                else:
+                    pass
 
             face_names.append(name)
 
