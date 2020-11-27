@@ -1,0 +1,48 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+
+this is index<br>
+
+<p id="last_face">{{last_face}}</p>
+<script>
+
+    var testVariable = document.getElementById('last_face').innerHTML;
+    var oldVar = testVariable;
+</script>
+
+<hr>
+<a class="scan" href="#">scan</a>*
+
+<a class="ajax" href="#">run ajax</a>
+
+<script>
+    setInterval(function () {
+        var url = 'http://127.0.0.1:8000/ajax/';
+        var last_face = document.getElementById('last_face').innerHTML;
+        $.ajax({
+            url: url,
+            success: function (data) {
+                if (data != last_face) {
+                    location.reload()
+                }
+                console.log(data);
+            }
+        })
+    }, 3000);
+
+</script>
+
+
+
+<script>
+    $(".scan").click(function () {
+        var postData = { csrfmiddlewaretoken: '{{ csrf_token }}' }
+        $.ajax({
+            url: "{% url 'scan' %}",
+            data: {
+
+            },
+        });
+    });
+</script>
