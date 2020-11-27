@@ -1,37 +1,25 @@
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+{% extends "core/base.html" %}
+{% load static %}
+{% block content %}
 
-
-this is index<br>
+<div class="container emp-profile">
 
 <p id="last_face">{{last_face}}</p>
-<script>
+<div class="row">
+    <div class="col-md-4">
+    </div>
+    <div class="col-md-6">
+        <div class="profile-head">
 
-    var testVariable = document.getElementById('last_face').innerHTML;
-    var oldVar = testVariable;
-</script>
-
+        </div>
+    </div>
+    <div class="col-md-2">
+        <a class="scan" href="{% url 'details' %}"><input type="submit" class="profile-edit-btn" name="btnAddMore" value="Start Scanner"/></a>
+    </div>
+</div>
 <hr>
-<a class="scan" href="#">scan</a>*
 
-<a class="ajax" href="#">run ajax</a>
-
-<script>
-    setInterval(function () {
-        var url = 'http://127.0.0.1:8000/ajax/';
-        var last_face = document.getElementById('last_face').innerHTML;
-        $.ajax({
-            url: url,
-            success: function (data) {
-                if (data != last_face) {
-                    location.reload()
-                }
-                console.log(data);
-            }
-        })
-    }, 3000);
-
-</script>
+</div>
 
 
 
@@ -46,3 +34,5 @@ this is index<br>
         });
     });
 </script>
+
+{% endblock content %}

@@ -4,6 +4,7 @@ import face_recognition
 import cv2
 import numpy as np
 import winsound
+from django.db.models import Q
 
 
 
@@ -124,9 +125,14 @@ def profile(request):
 
 
 def details(request):
-
-    last_face = LastFace.objects.last()
-    profile = Profile.objects.get(image=f'{last_face}.jpg')
+    try:
+        last_face = LastFace.objects.last()
+        profile = Profile.objects.get(Q(image__icontains=last_face))
+        print(profile)
+    except:
+        last_face = None
+        profile = None
+    
     context = {
         'profile': profile,
         'last_face':last_face
