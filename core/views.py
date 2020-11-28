@@ -43,14 +43,13 @@ def scan(request):
     known_face_encodings = []
     known_face_names = []
 
-
-    with open(face_list_file, "r") as a_file:
-        for line in a_file:
-            person = line.strip()
-            image_of_person = face_recognition.load_image_file(f'media/{person}.jpg')
-            person_face_encoding = face_recognition.face_encodings(image_of_person)[0]
-            known_face_encodings.append(person_face_encoding)
-            known_face_names.append(f'{person}')
+    profiles = Profile.objects.all()
+    for profile in profiles:
+        person = profile.image
+        image_of_person = face_recognition.load_image_file(f'media/{person}')
+        person_face_encoding = face_recognition.face_encodings(image_of_person)[0]
+        known_face_encodings.append(person_face_encoding)
+        known_face_names.append(f'{person}'[:-4])
 
 
     video_capture = cv2.VideoCapture(0)
@@ -61,10 +60,9 @@ def scan(request):
     process_this_frame = True
 
     while True:
+
         ret, frame = video_capture.read()
-
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
         rgb_small_frame = small_frame[:, :, ::-1]
 
         if process_this_frame:
@@ -139,7 +137,6 @@ def details(request):
     try:
         last_face = LastFace.objects.last()
         profile = Profile.objects.get(Q(image__icontains=last_face))
-        print(profile)
     except:
         last_face = None
         profile = None
