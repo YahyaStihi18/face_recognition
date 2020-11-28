@@ -1,54 +1,59 @@
-from django.shortcuts import render,HttpResponse,redirect
+from django.shortcuts import render, HttpResponse, redirect
 from .models import *
 import face_recognition
 import cv2
 import numpy as np
 import winsound
 from django.db.models import Q
-
+from playsound import playsound
+import os
 
 
 last_face = 'no_face'
+current_path = os.path.dirname(__file__)
+sound_folder = os.path.join(current_path, 'sound/')
+face_list_file = os.path.join(current_path, 'face_list.txt')
+sound = os.path.join(sound_folder, 'beep.wav')
+
 
 def index(request):
-    last_face = LastFace.objects.last()
-    context ={
-        'last_face':last_face
+    scanned = LastFace.objects.all()
+    present = Profile.objects.filter(present=True)
+    absent = Profile.objects.filter(present=False)
+    context = {
+        'scanned': scanned,
+        'present': present,
+        'absent': absent,
     }
-    return render(request, 'core/index.html',context)
+    return render(request, 'core/index.html', context)
+
 
 def ajax(request):
     last_face = LastFace.objects.last()
-    context ={
-        'last_face':last_face
+    context = {
+        'last_face': last_face
     }
-    return render(request, 'core/ajax.html',context)
+    return render(request, 'core/ajax.html', context)
+
 
 def scan(request):
 
     global last_face
+
+    known_face_encodings = []
+    known_face_names = []
+
+
+    with open(face_list_file, "r") as a_file:
+        for line in a_file:
+            person = line.strip()
+            image_of_person = face_recognition.load_image_file(f'media/{person}.jpg')
+            person_face_encoding = face_recognition.face_encodings(image_of_person)[0]
+            known_face_encodings.append(person_face_encoding)
+            known_face_names.append(f'{person}')
+
+
     video_capture = cv2.VideoCapture(0)
-
-    image_of_yahya = face_recognition.load_image_file('media/yahya_stihi.jpg')
-    yahya_face_encoding = face_recognition.face_encodings(image_of_yahya)[0]
-
-
-    image_of_ahmed = face_recognition.load_image_file('media/ahmed_bouchfirat.jpg')
-    ahmed_face_encoding = face_recognition.face_encodings(image_of_ahmed)[0]
-
-    known_face_encodings = [
-
-        yahya_face_encoding,
-        ahmed_face_encoding,
-
-    ]
-    known_face_names = [
-
-        "yahya_stihi",
-        "ahmed_bouchfirat"
-    ]
-
-
 
     face_locations = []
     face_encodings = []
@@ -73,18 +78,24 @@ def scan(request):
                     known_face_encodings, face_encoding)
                 name = "Unknown"
 
-
                 face_distances = face_recognition.face_distance(
                     known_face_encodings, face_encoding)
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
 
-                    if  last_face != name:
-                        print(f'new face request sent for: {name}')
+                    profile = Profile.objects.get(Q(image__icontains=name))
+                    if profile.present == True:
+                        pass
+                    else:
+                        profile.present = True
+                        profile.save()
+
+                    if last_face != name:
                         last_face = LastFace(last_face=name)
                         last_face.save()
                         last_face = name
+                        winsound.PlaySound(sound, winsound.SND_ASYNC)
                     else:
                         pass
 
@@ -101,7 +112,7 @@ def scan(request):
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
             cv2.rectangle(frame, (left, bottom - 35),
-                        (right, bottom), (0, 0, 255), cv2.FILLED)
+                          (right, bottom), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left + 6, bottom - 6),
                         font, 1.0, (255, 255, 255), 1)
@@ -113,7 +124,7 @@ def scan(request):
 
     video_capture.release()
     cv2.destroyAllWindows()
-    return HttpResponse('scaner closed',last_face)
+    return HttpResponse('scaner closed', last_face)
 
 
 def profile(request):
@@ -132,9 +143,26 @@ def details(request):
     except:
         last_face = None
         profile = None
-    
+
     context = {
         'profile': profile,
-        'last_face':last_face
+        'last_face': last_face
     }
     return render(request, 'core/details.html', context)
+
+
+def clear_history(request):
+    history = LastFace.objects.all()
+    history.delete()
+    return redirect('index')
+
+
+def reset(request):
+    profiles = Profile.objects.all()
+    for profile in profiles:
+        if profile.present == True:
+            profile.present = False
+            profile.save()
+        else:
+            pass
+    return redirect('index')

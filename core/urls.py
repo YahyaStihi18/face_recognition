@@ -9,4 +9,8 @@ urlpatterns = [
     path('profile/', profile, name= 'profile'),
     path('details/', details, name= 'details'),
 
+    path('clear_history/',clear_history,name='clear_history'),
+    path('reset/',reset,name='reset'),
+
+
 ]
