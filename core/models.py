@@ -7,7 +7,7 @@ types = [('employee','employee'),('visitor','visitor')]
 class Profile(models.Model):
     first_name = models.CharField(max_length=70)
     last_name = models.CharField(max_length=70)
-    age = models.IntegerField()
+    date = models.DateField()
     phone = models.BigIntegerField()
     email = models.EmailField()
     ranking = models.IntegerField()

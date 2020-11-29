@@ -5,18 +5,20 @@
 <div class="container emp-profile">
 
     <div class="row">
-        <div class="col-md-4">
-            <img src="{% static 'img/fcicon.png'%}" alt="" width="30%">
-            
+        <div class="col-md-3">
+            <img src="{% static 'img/fcicon.png'%}" alt="" width="50%">
+            <h6 class="text-muted p-1"> FR-CV2-Django</h6>
+
         </div>
         <div class="col-md-6">
             <div class="profile-head">
-                
             </div>
         </div>
-        <div class="col-md-2">
-            <a target="_blank" class="scan" href="{% url 'details' %}"><input type="submit" class="profile-edit-btn"
+        <div class="col-md-3">
+            <a target="_blank" class="scan" href="{% url 'details' %}"><input type="submit" class="profile-edit-btn m-2"
                     name="btnAddMore" value="Run Scanner" /></a>
+            <a   href="{% url 'profiles' %}"><input type="submit" class="profile-edit-btn m-2 "
+                        name="btnAddMore" value="Profiles" /></a>
         </div>
     </div>
     <hr>
@@ -93,7 +95,7 @@
                 <thead>
                     <tr>
                         <th scope="col"> </th>
-                        <th scope="col">Name</th>
+                        <th scope="col">Profile ID</th>
                         <th scope="col">Date</th>
                     </tr>
                 </thead>

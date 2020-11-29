@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .models import *
+from .forms import *
 import face_recognition
 import cv2
 import numpy as np
@@ -17,9 +18,9 @@ sound = os.path.join(sound_folder, 'beep.wav')
 
 
 def index(request):
-    scanned = LastFace.objects.all()
-    present = Profile.objects.filter(present=True)
-    absent = Profile.objects.filter(present=False)
+    scanned = LastFace.objects.all().order_by('date').reverse()
+    present = Profile.objects.filter(present=True).order_by('updated').reverse()
+    absent = Profile.objects.filter(present=False).order_by('shift')
     context = {
         'scanned': scanned,
         'present': present,
@@ -113,7 +114,7 @@ def scan(request):
                           (right, bottom), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left + 6, bottom - 6),
-                        font, 1.0, (255, 255, 255), 1)
+                        font, 0.5, (255, 255, 255), 1)
 
         cv2.imshow('Video', frame)
 
@@ -125,12 +126,12 @@ def scan(request):
     return HttpResponse('scaner closed', last_face)
 
 
-def profile(request):
+def profiles(request):
     profiles = Profile.objects.all()
     context = {
         'profiles': profiles
     }
-    return render(request, 'core/profile.html', context)
+    return render(request, 'core/profiles.html', context)
 
 
 def details(request):
@@ -146,6 +147,35 @@ def details(request):
         'last_face': last_face
     }
     return render(request, 'core/details.html', context)
+
+
+def add_profile(request):
+    form = ProfileForm
+    if request.method == 'POST':
+        form = ProfileForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('profiles')
+    context={'form':form}
+    return render(request,'core/add_profile.html',context)
+
+
+def edit_profile(request,id):
+    profile = Profile.objects.get(id=id)
+    form = ProfileForm(instance=profile)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST,request.FILES,instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profiles')
+    context={'form':form}
+    return render(request,'core/add_profile.html',context)
+
+
+def delete_profile(request,id):
+    profile = Profile.objects.get(id=id)
+    profile.delete()
+    return redirect('profiles')
 
 
 def clear_history(request):
